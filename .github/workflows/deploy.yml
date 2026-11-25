@@ -10,6 +10,10 @@ jobs:
   test-and-build:
     runs-on: ubuntu-latest
 
+    # يمرَّر السر هنا حتى يمكن فحصه في شروط الخطوات
+    env:
+      DOCKERHUB_USER: ${{ secrets.DOCKER_USERNAME }}
+
     services:
       postgres:
         image: postgres:16-alpine
@@ -69,18 +73,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # تسجيل الدخول فقط عند الـ push وعند وجود أسرار Docker Hub
       - name: Log in to Docker Hub
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && env.DOCKERHUB_USER != ''
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Docker Image
+      # يبني الصورة دائمًا للتحقق، ويرفعها فقط عند وجود الأسرار
+      - name: Build (and push if secrets exist)
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ secrets.DOCKER_USERNAME || 'local' }}/clothing-ecommerce:latest
+          push: ${{ github.event_name != 'pull_request' && env.DOCKERHUB_USER != '' }}
+          tags: ${{ env.DOCKERHUB_USER || 'local' }}/clothing-ecommerce:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
