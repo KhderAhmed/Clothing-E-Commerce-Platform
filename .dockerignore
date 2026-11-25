@@ -11,4 +11,5 @@ storage/framework/views/*
 tests
 .env
 *.md
+bootstrap/cache/*.php
 database/*.sqlite

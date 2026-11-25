@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #  Clothing E-Commerce Platform
+=======
+# 👗 Clothing E-Commerce Platform
+>>>>>>> e9cae99 (docs: update fix Docker setup, add Reverb config)
 
 An e-commerce platform built with **Laravel** for browsing clothing and managing products and orders, with a **local Arabic chat assistant** that works without any external API.
 
@@ -9,6 +13,10 @@ An e-commerce platform built with **Laravel** for browsing clothing and managing
 - [Tech Stack](#tech-stack)
 - [Requirements](#requirements)
 - [Quick Start with Docker](#quick-start-with-docker)
+<<<<<<< HEAD
+=======
+- [Troubleshooting](#troubleshooting)
+>>>>>>> e9cae99 (docs: update fix Docker setup, add Reverb config)
 - [Local Setup without Docker](#local-setup-without-docker)
 - [Database and Demo Data](#database-and-demo-data)
 - [Testing](#testing)
@@ -53,7 +61,11 @@ The assistant helps users:
 
 - Docker Engine or Docker Desktop.
 - Docker Compose.
+<<<<<<< HEAD
 - Ports `8000` and `8080` available.
+=======
+- Ports `8000` and `8081` available on your machine (both can be changed in `docker-compose.yml`).
+>>>>>>> e9cae99 (docs: update fix Docker setup, add Reverb config)
 
 **For local setup without Docker:**
 
@@ -98,10 +110,27 @@ docker compose up -d --build
 docker compose exec app php artisan migrate --force
 ```
 
+<<<<<<< HEAD
 **5. Open the app:**
 
 - Application: <http://localhost:8000>
 - Reverb WebSocket: port `8080`
+=======
+**5. (Optional, development only) Add demo data:**
+
+```bash
+docker compose exec app php artisan db:seed --force
+```
+
+> `--force` is required because `APP_ENV` is set to `production` in `docker-compose.yml`.
+
+**6. Open the app:**
+
+- Application: <http://localhost:8000>
+- Reverb WebSocket: port `8081` on your machine (forwarded to `8080` inside the container)
+
+> If port `8081` or `8000` is already in use, change only the first number in `docker-compose.yml`, for example `"8082:8080"`. Do not change `REVERB_PORT` (the second number, inside the container).
+>>>>>>> e9cae99 (docs: update fix Docker setup, add Reverb config)
 
 ### Useful Commands
 
@@ -119,6 +148,26 @@ docker compose down
 > docker compose down -v
 > ```
 
+<<<<<<< HEAD
+=======
+### Troubleshooting
+
+**`npm ci` fails because `package-lock.json` is out of sync:**
+Run `npm install` on your machine, then rebuild. If the error persists, it may be caused by an npm version mismatch between your machine and the `node` image in Docker; install the missing package explicitly or upgrade npm inside the `Dockerfile`.
+
+**`port is already allocated`:**
+The port is in use on your machine. Change the first number in `ports` inside `docker-compose.yml`.
+
+**`Class "Laravel\Pail\PailServiceProvider" not found`:**
+Caused by stale cache files in `bootstrap/cache` that reference dev-only packages not installed in the production image. Make sure `.dockerignore` contains the following line, then rebuild:
+
+```text
+bootstrap/cache/*.php
+```
+
+You can also add `RUN rm -f bootstrap/cache/*.php` to the `Dockerfile` after `COPY . .`.
+
+>>>>>>> e9cae99 (docs: update fix Docker setup, add Reverb config)
 ## Local Setup without Docker
 
 ```bash
@@ -144,6 +193,15 @@ php artisan db:seed
 php artisan migrate:fresh --seed
 ```
 
+<<<<<<< HEAD
+=======
+Inside Docker, run the commands through the container with `--force`:
+
+```bash
+docker compose exec app php artisan migrate:fresh --seed --force
+```
+
+>>>>>>> e9cae99 (docs: update fix Docker setup, add Reverb config)
 `DatabaseSeeder` currently creates two demo accounts:
 
 | Account | Email | Password | Role |
@@ -257,4 +315,8 @@ Do not commit these files or values to the repository:
 - Reverb secrets
 - Docker Hub passwords
 
+<<<<<<< HEAD
 Use **GitHub Actions Secrets** in the workflow and runtime secrets on the server.
+=======
+Use **GitHub Actions Secrets** in the workflow and runtime secrets on the server.
+>>>>>>> e9cae99 (docs: update fix Docker setup, add Reverb config)

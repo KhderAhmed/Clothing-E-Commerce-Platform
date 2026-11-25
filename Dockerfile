@@ -1,12 +1,22 @@
-# المرحلة 1: Composer
-FROM composer:2.7 AS composer-build
+# Build Composer dependencies with the same PHP version and extensions as runtime.
+FROM php:8.2-fpm-alpine AS composer-build
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions gd pdo_pgsql pgsql mbstring exif pcntl bcmath zip opcache \
+    && rm -rf /tmp/*
+
 WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install \
-    --no-dev --no-interaction --no-plugins --no-scripts \
-    --prefer-dist --optimize-autoloader --ignore-platform-reqs
+    --no-dev --no-interaction --prefer-dist --no-progress \
+    --no-scripts --optimize-autoloader
 
-# المرحلة 2: Vite
+# Run Laravel's Composer hooks (including package discovery) after source is present.
+COPY . .
+RUN composer dump-autoload --no-dev --no-interaction --optimize
+
+# Build frontend assets.
 FROM node:20-alpine AS node-build
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -14,7 +24,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# المرحلة 3: الإنتاج
+# Production image.
 FROM php:8.2-fpm-alpine
 
 RUN apk add --no-cache nginx supervisor
@@ -29,12 +39,16 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 WORKDIR /var/www/html
 
-# --chown بدل chown -R حتى ما تتضاعف الطبقة
 COPY --chown=www-data:www-data . .
 COPY --from=composer-build --chown=www-data:www-data /app/vendor ./vendor
 COPY --from=node-build --chown=www-data:www-data /app/public/build ./public/build
 
-RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
+RUN mkdir -p \
+        storage/framework/cache \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+        bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
