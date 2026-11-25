@@ -1,0 +1,59 @@
+services:
+  app:
+    build: .
+    image: clothing-ecommerce:latest
+    container_name: ecommerce_app
+    restart: always
+    ports:
+      - "8000:80"
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      BROADCAST_CONNECTION: reverb
+      REVERB_APP_ID: ${REVERB_APP_ID}
+      REVERB_APP_KEY: ${REVERB_APP_KEY}
+      REVERB_APP_SECRET: ${REVERB_APP_SECRET}
+      REVERB_HOST: 0.0.0.0
+      REVERB_PORT: 8080
+      REVERB_SCHEME: http
+    volumes:
+      - app-storage:/var/www/html/storage
+    networks:
+      - ecommerce-net
+
+  db:
+    image: postgres:16-alpine
+    container_name: ecommerce_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - ecommerce-net
+
+volumes:
+  pgdata:
+  app-storage:
+
+networks:
+  ecommerce-net:
+    driver: bridge
