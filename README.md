@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #  Clothing E-Commerce Platform
 =======
 # 👗 Clothing E-Commerce Platform
@@ -61,7 +60,6 @@ The assistant helps users:
 
 - Docker Engine or Docker Desktop.
 - Docker Compose.
-<<<<<<< HEAD
 - Ports `8000` and `8080` available.
 =======
 - Ports `8000` and `8081` available on your machine (both can be changed in `docker-compose.yml`).
@@ -110,7 +108,6 @@ docker compose up -d --build
 docker compose exec app php artisan migrate --force
 ```
 
-<<<<<<< HEAD
 **5. Open the app:**
 
 - Application: <http://localhost:8000>
@@ -148,7 +145,7 @@ docker compose down
 > docker compose down -v
 > ```
 
-<<<<<<< HEAD
+
 =======
 ### Troubleshooting
 
@@ -193,7 +190,7 @@ php artisan db:seed
 php artisan migrate:fresh --seed
 ```
 
-<<<<<<< HEAD
+
 =======
 Inside Docker, run the commands through the container with `--force`:
 
@@ -315,7 +312,7 @@ Do not commit these files or values to the repository:
 - Reverb secrets
 - Docker Hub passwords
 
-<<<<<<< HEAD
+
 Use **GitHub Actions Secrets** in the workflow and runtime secrets on the server.
 =======
 Use **GitHub Actions Secrets** in the workflow and runtime secrets on the server.
